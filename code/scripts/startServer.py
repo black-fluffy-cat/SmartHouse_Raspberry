@@ -9,7 +9,7 @@ from scripts.DataManager import current_ms_time
 
 deviceName = "RPI Zero + Camera"
 
-serverUrl = "http://192.168.0.108:8080"
+serverUrl = "http://192.168.0.107:8080"
 
 GPIO.setmode(GPIO.BCM)
 LedChanger.initLedChanger()

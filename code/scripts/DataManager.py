@@ -13,6 +13,11 @@ def getAlertEndpoint():
     return str(serverUrl) + "/alert"
 
 
+def getPhotoReceiveEndpoint():
+    from scripts.startServer import serverUrl
+    return str(serverUrl) + "/receivePhoto"
+
+
 def getHeartbeatJson():
     from scripts.startServer import startTime
     from scripts.startServer import lastAlertTime

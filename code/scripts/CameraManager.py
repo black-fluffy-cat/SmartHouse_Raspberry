@@ -3,7 +3,7 @@ import datetime
 
 from picamera import PiCameraError
 
-from scripts import LedChanger
+from scripts import LedChanger, DataSender
 
 
 def makePhoto():
@@ -14,6 +14,7 @@ def makePhoto():
             camera.resolution = (2592, 1944)
             imageName = 'photo/' + str(currentTime) + '.jpeg'
             camera.capture(imageName)
+            DataSender.sendImage(imageName)
         except PiCameraError as e:
             LedChanger.lightErrorLedOn()
             print("EXCEPTION : " + repr(e) + " " + str(e))
