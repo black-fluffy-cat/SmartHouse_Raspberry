@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 from flask import request
 from flask_api import FlaskAPI
 
-from scripts import CameraManager, HeartbeatManager, LedChanger
+from scripts import CameraManager, HeartbeatManager, LedChanger, DataSender
 from scripts.DataManager import current_ms_time
 
 deviceName = "RPI Zero + Camera"
@@ -32,7 +32,8 @@ def alertPhoto():
 def onAlertPhotoRequest():
     global lastAlertTime
     lastAlertTime = current_ms_time()
-    CameraManager.makePhoto()
+    imagePath = CameraManager.makePhoto()
+    DataSender.handleImage(imagePath)
 
 
 @app.route('/led/<color>/', methods=["GET", "POST"])

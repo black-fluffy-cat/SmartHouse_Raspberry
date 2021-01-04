@@ -4,7 +4,7 @@ import threading
 import requests
 import requests as pyrequests
 
-from scripts import DataManager, LedChanger
+from scripts import DataManager, LedChanger, utils
 
 heartbeatHeaders = {'content-type': 'application/json'}
 
@@ -19,21 +19,23 @@ def makeHeartbeatCall():
                 LedChanger.lightErrorLedOn()
         except Exception as e:
             LedChanger.lightErrorLedOn()
-            print("EXCEPTION : " + repr(e) + " " + str(e))
+            utils.printException(e)
 
 
-def sendImage(imageName):
-    thread = threading.Thread(target=thread_send_image, args=(imageName,))
+def handleImage(imagePath):
+    thread = threading.Thread(target=thread_handle_sending_and_deleting_image, args=(imagePath,))
     thread.start()
 
 
-def thread_send_image(imageName):
+def thread_handle_sending_and_deleting_image(imagePath):
     try:
-        with open(imageName, 'rb') as img:
-            imageBasename = os.path.basename(imageName)
+        with open(imagePath, 'rb') as img:
+            imageBasename = os.path.basename(imagePath)
             files = {'img': (imageBasename, img, 'multipart/form-data')}
             with requests.Session() as s:
                 r = s.post(DataManager.getPhotoReceiveEndpoint(), files=files)
                 print(r.status_code)
+                if r.status_code == 200:
+                    DataManager.deleteFile(imagePath)
     except Exception as e:
-        print("EXCEPTION : " + repr(e) + " " + str(e))
+        utils.printException(e)

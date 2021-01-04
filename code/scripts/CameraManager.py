@@ -1,21 +1,22 @@
-import picamera
 import datetime
 
+import picamera
 from picamera import PiCameraError
 
-from scripts import LedChanger, DataSender
+from scripts import LedChanger, utils
 
 
 def makePhoto():
     LedChanger.lightPhotoLedOn()
+    imagePath = None
     with picamera.PiCamera() as camera:
         try:
             currentTime = datetime.datetime.now()
             camera.resolution = (2592, 1944)
-            imageName = 'photo/' + str(currentTime) + '.jpeg'
-            camera.capture(imageName)
-            DataSender.sendImage(imageName)
+            imagePath = 'photo/' + str(currentTime) + '.jpeg'
+            camera.capture(imagePath)
         except PiCameraError as e:
             LedChanger.lightErrorLedOn()
-            print("EXCEPTION : " + repr(e) + " " + str(e))
+            utils.printException(e)
     LedChanger.lightPhotoLedOff()
+    return imagePath

@@ -1,5 +1,7 @@
 import time
 
+from scripts import utils
+
 current_ms_time = lambda: int(round(time.time() * 1000))
 
 
@@ -32,3 +34,13 @@ def getHeartbeatJson():
     timeFromAlertString = str(timeFromAlert)
     fourthPart = "\"}"
     return firstPart + deviceName + secondPart + timeFromStartString + thirdPart + timeFromAlertString + fourthPart
+
+
+def deleteFile(filepath):
+    try:
+        import os
+        os.remove(filepath)
+    except Exception as e:
+        utils.printException(e)
+
+
