@@ -16,7 +16,6 @@ LedChanger.initLedChanger()
 
 app = FlaskAPI(__name__)
 
-startTime = 0
 lastAlertTime = 0
 
 
@@ -55,8 +54,7 @@ def setServerUrl():
     return {"result": "FAIL"}
 
 
-if __name__ == "photoOnRequest":
-    print('Application starting')
-    app.run()
-    startTime = current_ms_time()
-    HeartbeatManager.initHeartbeatThread()
+print('Application starting')
+app.run()
+startTime = current_ms_time()
+HeartbeatManager.initHeartbeatThread()
