@@ -28,6 +28,8 @@ def makeNgrokAddressesCall():
             res = pyrequests.post(DataManager.getNgrokAddressesEndpoint(), headers=jsonHeaders,
                                   data=DataManager.getNgrokAddressesAsJson(), timeout=10)
             if res.status_code != 200:
+                if res.status_code == 404:  # Hotfix!!
+                    return True
                 LedChanger.lightErrorLedOn()
                 return False
             return True
