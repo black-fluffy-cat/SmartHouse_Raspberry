@@ -4,19 +4,20 @@ from scripts import utils
 
 current_ms_time = lambda: int(round(time.time() * 1000))
 
+lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
+defaultServerAddress = "http://192.168.0.107:8080"
+serverUrl = defaultServerAddress
+
 
 def getHeartbeatEndpoint():
-    from scripts.startServer import serverUrl
     return str(serverUrl) + "/heartbeat"
 
 
 def getAlertEndpoint():
-    from scripts.startServer import serverUrl
     return str(serverUrl) + "/alert"
 
 
 def getPhotoReceiveEndpoint():
-    from scripts.startServer import serverUrl
     return str(serverUrl) + "/receivePhoto"
 
 
@@ -44,3 +45,29 @@ def deleteFile(filepath):
         utils.printException(e)
 
 
+def onServerAddressReceived(serverAddress):
+    global serverUrl
+    serverUrl = serverAddress
+    saveServerAddress(serverAddress)
+
+
+def getServerAddress():
+    return serverUrl
+
+
+def saveServerAddress(serverAddress):
+    try:
+        with open(lastKnownServerAddressFileName, 'w') as file:
+            file.write(serverAddress)
+    except Exception as e:
+        utils.printException(e)
+
+
+def refreshServerAddressFromFile():
+    global serverUrl
+    try:
+        with open(lastKnownServerAddressFileName, 'r') as file:
+            serverUrl = file.readline()
+    except Exception as e:
+        utils.printException(e)
+    serverUrl = defaultServerAddress

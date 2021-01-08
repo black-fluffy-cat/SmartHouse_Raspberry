@@ -4,12 +4,10 @@ import RPi.GPIO as GPIO
 from flask import request
 from flask_api import FlaskAPI
 
-from scripts import CameraManager, HeartbeatManager, LedChanger, DataSender
+from scripts import CameraManager, HeartbeatManager, LedChanger, DataSender, DataManager
 from scripts.DataManager import current_ms_time
 
 deviceName = "RPI Zero + Camera"
-
-serverUrl = "http://192.168.0.107:8080"
 
 GPIO.setmode(GPIO.BCM)
 LedChanger.initLedChanger()
@@ -47,9 +45,8 @@ def api_leds_control(color):
 @app.route('/setServerUrl/', methods=["POST"])
 def setServerUrl():
     if request.method == "POST":
-        global serverUrl
-        # if field is none or exception occurred then do not set it 
-        serverUrl = request.data.get("serverUrl")
+        # if field is none or exception occurred then do not set it
+        DataManager.onServerAddressReceived(request.data.get("serverUrl"))
         return {"result": "OK"}
     return {"result": "FAIL"}
 
@@ -57,4 +54,5 @@ def setServerUrl():
 print('Application starting')
 app.run()
 startTime = current_ms_time()
+DataManager.refreshServerAddressFromFile()
 HeartbeatManager.initHeartbeatThread()
