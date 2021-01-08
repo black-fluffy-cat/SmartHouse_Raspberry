@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 from flask import request
 from flask_api import FlaskAPI
 
-from scripts import CameraManager, HeartbeatManager, LedChanger, DataSender, DataManager
+from scripts import CameraManager, HeartbeatManager, LedChanger, DataSender, DataManager, NgrokAddressesManager
 from scripts.DataManager import current_ms_time
 
 deviceName = "RPI Zero + Camera"
@@ -56,3 +56,4 @@ app.run()
 startTime = current_ms_time()
 DataManager.refreshServerAddressFromFile()
 HeartbeatManager.initHeartbeatThread()
+NgrokAddressesManager.sendAddressesToServerUntilSuccess()
