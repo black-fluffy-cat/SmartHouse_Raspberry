@@ -74,6 +74,7 @@ def refreshServerAddressFromFile():
     try:
         with open(lastKnownServerAddressFileName, 'r') as file:
             serverUrl = file.readline()
+            return
     except Exception as e:
         utils.printException(e)
     serverUrl = defaultServerAddress
