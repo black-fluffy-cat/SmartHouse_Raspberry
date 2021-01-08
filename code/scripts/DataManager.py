@@ -1,4 +1,6 @@
 import time
+import os
+import json
 
 from scripts import utils
 
@@ -19,6 +21,10 @@ def getAlertEndpoint():
 
 def getPhotoReceiveEndpoint():
     return str(serverUrl) + "/receivePhoto"
+
+
+def getNgrokAddressesEndpoint():
+    return str(serverUrl) + "/receiveNgrokAddresses"
 
 
 def getHeartbeatJson():
@@ -71,3 +77,19 @@ def refreshServerAddressFromFile():
     except Exception as e:
         utils.printException(e)
     serverUrl = defaultServerAddress
+
+
+def getNgrokAddressesAsJson():
+    os.system("curl  http://localhost:4040/api/tunnels > tunnels.json")
+
+    listOfTunnels = []
+
+    with open('tunnels.json') as data_file:
+        datajson = json.load(data_file)
+
+    for tunnel in datajson['tunnels']:
+        tunnelJson = {'name': tunnel['name'], 'publicUrl': tunnel['public_url'], 'addr': tunnel['config']['addr']}
+        listOfTunnels.append(tunnelJson)
+
+    objectToSend = {'senderId': "PC", 'tunnelsList': listOfTunnels}
+    return json.dumps(objectToSend)
