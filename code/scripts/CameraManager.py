@@ -13,7 +13,8 @@ def makePhoto():
         try:
             currentTime = datetime.datetime.now()
             camera.resolution = (2592, 1944)
-            imagePath = 'photo/' + str(currentTime) + '.jpeg'
+            from scripts.startServer import deviceName
+            imagePath = 'photo/' + str(deviceName) + "_" + str(currentTime) + '.jpeg'
             camera.capture(imagePath)
         except PiCameraError as e:
             LedChanger.lightErrorLedOn()
