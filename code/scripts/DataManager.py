@@ -92,5 +92,6 @@ def getNgrokAddressesAsJson():
         tunnelJson = {'name': tunnel['name'], 'publicUrl': tunnel['public_url'], 'addr': tunnel['config']['addr']}
         listOfTunnels.append(tunnelJson)
 
-    objectToSend = {'senderId': "PC", 'tunnelsList': listOfTunnels}
+    from scripts.startServer import deviceName
+    objectToSend = {'senderId': str(deviceName), 'tunnelsList': listOfTunnels}
     return json.dumps(objectToSend)
