@@ -2,7 +2,7 @@ import time
 import os
 import json
 
-from scripts import utils
+import utils
 
 current_ms_time = lambda: int(round(time.time() * 1000))
 
@@ -28,9 +28,9 @@ def getNgrokAddressesEndpoint():
 
 
 def getHeartbeatJson():
-    from scripts.startServer import startTime
-    from scripts.startServer import lastAlertTime
-    from scripts.startServer import deviceName
+    from startServer import startTime
+    from startServer import lastAlertTime
+    from startServer import deviceName
     currentTime = current_ms_time()
     timeFromStart = currentTime - startTime
     timeFromAlert = currentTime - lastAlertTime
@@ -92,6 +92,6 @@ def getNgrokAddressesAsJson():
         tunnelJson = {'name': tunnel['name'], 'publicUrl': tunnel['public_url'], 'addr': tunnel['config']['addr']}
         listOfTunnels.append(tunnelJson)
 
-    from scripts.startServer import deviceName
+    from startServer import deviceName
     objectToSend = {'senderId': str(deviceName), 'tunnelsList': listOfTunnels}
     return json.dumps(objectToSend)

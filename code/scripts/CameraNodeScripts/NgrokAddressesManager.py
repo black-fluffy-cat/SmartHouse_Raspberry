@@ -1,9 +1,9 @@
-from scripts import DataSender
+import DataSender
 
 
 def sendAddressesToServerUntilSuccess():
-    from scripts.startServer import app
+    from startServer import app
     with app.test_request_context():
         sentSuccessfully = False
-        while not sentSuccessfully: # Maybe some additional stop condition?
+        while not sentSuccessfully:  # Maybe some additional stop condition?
             sentSuccessfully = DataSender.makeNgrokAddressesCall()

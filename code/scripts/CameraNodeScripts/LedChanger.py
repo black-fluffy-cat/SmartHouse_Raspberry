@@ -2,10 +2,12 @@ from RPi import GPIO
 
 LEDS = {"green": 16, "blue": 19, "errorLed": 12}
 
+
 def initLedChanger():
     GPIO.setup(LEDS["green"], GPIO.OUT)
     GPIO.setup(LEDS["blue"], GPIO.OUT)
     GPIO.setup(LEDS["errorLed"], GPIO.OUT)
+
 
 def lightErrorLedOn():
     GPIO.output(LEDS["errorLed"], GPIO.HIGH)

@@ -3,13 +3,13 @@ import threading
 
 import requests as pyrequests
 
-from scripts import DataManager, LedChanger, utils
+import DataManager, LedChanger, utils
 
 jsonHeaders = {'content-type': 'application/json'}
 
 
 def makeHeartbeatCall():
-    from scripts.startServer import app
+    from startServer import app
     with app.test_request_context():
         try:
             res = pyrequests.post(DataManager.getHeartbeatEndpoint(), headers=jsonHeaders,
@@ -22,7 +22,7 @@ def makeHeartbeatCall():
 
 
 def makeNgrokAddressesCall():
-    from scripts.startServer import app
+    from startServer import app
     with app.test_request_context():
         try:
             res = pyrequests.post(DataManager.getNgrokAddressesEndpoint(), headers=jsonHeaders,

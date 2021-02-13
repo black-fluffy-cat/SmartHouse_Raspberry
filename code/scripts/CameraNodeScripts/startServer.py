@@ -4,12 +4,17 @@ import RPi.GPIO as GPIO
 from flask import request
 from flask_api import FlaskAPI
 
-from scripts import CameraManager, HeartbeatManager, LedChanger, DataSender, DataManager, NgrokAddressesManager
-from scripts.DataManager import current_ms_time
+import CameraManager
+import DataManager
+import DataSender
+import HeartbeatManager
+import LedChanger
+import NgrokAddressesManager
+from DataManager import current_ms_time
 
 deviceName = "RPI Zero + Camera"
 
-photoButtonPin = 17 # Move to common place with LEDS pins
+photoButtonPin = 17  # Move to common place with LEDS pins
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(photoButtonPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -20,9 +25,11 @@ app = FlaskAPI(__name__)
 
 lastAlertTime = 0
 
+
 def photoButtonEvent(channel):
     if GPIO.input(photoButtonPin) == GPIO.HIGH:
         CameraManager.makePhoto()
+
 
 @app.route('/alertPhoto', methods=["POST"])
 def alertPhoto():

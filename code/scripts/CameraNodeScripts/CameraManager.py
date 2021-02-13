@@ -3,7 +3,8 @@ import datetime
 import picamera
 from picamera import PiCameraError
 
-from scripts import LedChanger, utils
+import LedChanger
+import utils
 
 
 def makePhoto():
@@ -13,7 +14,7 @@ def makePhoto():
         try:
             currentTime = datetime.datetime.now()
             camera.resolution = (2592, 1944)
-            from scripts.startServer import deviceName
+            from startServer import deviceName
             imagePath = 'photo/' + str(deviceName) + "_" + str(currentTime) + '.jpeg'
             camera.capture(imagePath)
         except PiCameraError as e:
