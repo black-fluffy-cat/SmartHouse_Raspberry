@@ -98,4 +98,5 @@ startTime = current_ms_time()
 DataManager.refreshServerAddressFromFile()
 HeartbeatManager.initHeartbeatThread()
 # NgrokAddressesManager.sendAddressesToServerUntilSuccess()
+
 GPIO.add_event_detect(photoButtonPin, GPIO.BOTH, callback=photoButtonEvent)

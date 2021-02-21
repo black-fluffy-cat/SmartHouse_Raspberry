@@ -69,7 +69,7 @@ def thread_handle_sending_and_deleting_video(videoPath):
             videoBasename = os.path.basename(videoPath)
             files = {'video': (videoBasename, img, 'multipart/form-data')}
             with pyrequests.Session() as s:
-                r = s.post(DataManager.getPhotoReceiveEndpoint(), files=files)
+                r = s.post(DataManager.getVideoReceiveEndpoint(), files=files)
                 print(r.status_code)
                 if r.status_code == 200:
                     DataManager.deleteFile(videoPath)
