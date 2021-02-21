@@ -75,7 +75,7 @@ def startMonitoring():
 
 
 def onStartMonitoringRequest():
-    videoPath = CameraManager.startRecordingAndStreaming()
+    CameraManager.startRecordingAndStreamingAsynchronously()
 
 
 @app.route('/stopMonitoring', methods=["POST"])

@@ -33,7 +33,7 @@ def makePhoto():
     return imagePath
 
 
-def handleStartRecordingAndStreaming():
+def startRecordingAndStreamingAsynchronously():
     thread = threading.Thread(target=startRecordingAndStreaming)
     thread.start()
 
