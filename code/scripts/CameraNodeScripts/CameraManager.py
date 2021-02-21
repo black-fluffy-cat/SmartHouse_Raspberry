@@ -48,22 +48,13 @@ def startRecordingAndStreaming():
     shouldStillMonitor = True
     videoPath = None
 
-    try:
-        client_socket = socket.socket()
-        from DataManager import defaultServerIP
-        client_socket.connect((defaultServerIP, 8000))
-        # Make a file-like object out of the connection
-        connection = client_socket.makefile('wb')
-    except Exception as e:
-        utils.printException(e)
-        print("Continuing without connection to stream")
-
     LedChanger.lightPhotoLedOn()
     try:
         with picamera.PiCamera() as camera:
             camera.resolution = (1024, 768)
             camera.framerate = 24
             while shouldStillMonitor:
+                connection = tryToEstablishStreamConnection()
                 # Start recording, sending the output to the connection for 60
                 # seconds, then stop
                 from startServer import deviceName
@@ -86,3 +77,16 @@ def startRecordingAndStreaming():
             client_socket.close()
         LedChanger.lightPhotoLedOff()
     return videoPath
+
+
+def tryToEstablishStreamConnection():
+    try:
+        client_socket = socket.socket()
+        from DataManager import defaultServerIP
+        client_socket.connect((defaultServerIP, 8000))
+        # Make a file-like object out of the connection
+        return client_socket.makefile('wb')
+    except Exception as e:
+        utils.printException(e)
+        print("Continuing without connection to stream")
+        return None
