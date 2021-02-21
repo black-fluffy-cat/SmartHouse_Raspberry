@@ -87,6 +87,11 @@ def stopMonitoring():
     return {"result": "FAIL"}
 
 
+@app.route('/isMonitoringWorking', methods=["GET"])
+def isMonitoringWorking():
+    return {"result": str(CameraManager.isMonitoringWorking())}
+
+
 print('Application starting')
 app.run()
 startTime = current_ms_time()

@@ -9,6 +9,7 @@ import LedChanger
 import utils
 
 shouldStillMonitor = True
+monitoringWorking = False
 
 
 def onMonitoringStopped():
@@ -48,34 +49,49 @@ def startRecordingAndStreaming():
     shouldStillMonitor = True
     videoPath = None
 
+    global monitoringWorking
     LedChanger.lightPhotoLedOn()
     try:
+        monitoringWorking = True
         with picamera.PiCamera() as camera:
             camera.resolution = (1024, 768)
             camera.framerate = 24
             while shouldStillMonitor:
-                connection = tryToEstablishStreamConnection()
+                client_socket, connection = tryToEstablishStreamConnection()
                 # Start recording, sending the output to the connection for 60
                 # seconds, then stop
                 from startServer import deviceName
                 videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
                 camera.start_recording(videoPath)
-                if connection is not None:
-                    camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
+
+                try:
+                    if connection is not None:
+                        camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
+                except Exception as e:
+                    utils.printException(e)
+                    connection = None
+                    client_socket = None
 
                 camera.wait_recording(30)
-
                 camera.stop_recording()
-                if connection is not None:
-                    camera.stop_recording(splitter_port=2)
+
+                try:
+                    if connection is not None:
+                        camera.stop_recording(splitter_port=2)
+                except Exception as e:
+                    utils.printException(e)
+                    connection = None
+                    client_socket = None
 
                 DataSender.handleVideoAsynchronously(videoPath)
     finally:
-        connection.close()
+        if connection is not None:
+            connection.close()
         if client_socket is not None:
             client_socket.close()
         LedChanger.lightPhotoLedOff()
+        monitoringWorking = False
     return videoPath
 
 
@@ -85,8 +101,15 @@ def tryToEstablishStreamConnection():
         from DataManager import defaultServerIP
         client_socket.connect((defaultServerIP, 8000))
         # Make a file-like object out of the connection
-        return client_socket.makefile('wb')
+        connection = client_socket.makefile('wb')
+        print("Connection to stream established")
+        return client_socket, connection
     except Exception as e:
         utils.printException(e)
         print("Continuing without connection to stream")
-        return None
+        return None, None
+
+
+def isMonitoringWorking():
+    global monitoringWorking
+    return monitoringWorking
