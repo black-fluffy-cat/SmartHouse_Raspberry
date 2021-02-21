@@ -43,6 +43,9 @@ def startRecordingAndStreaming():
     # Connect a client socket to my_server:8000 (change my_server to the
     # hostname of your server)
 
+    if isMonitoringWorking():
+        return
+
     connection = None
     client_socket = None
     global shouldStillMonitor
@@ -52,11 +55,11 @@ def startRecordingAndStreaming():
     global monitoringWorking
     LedChanger.lightPhotoLedOn()
     try:
-        monitoringWorking = True
         with picamera.PiCamera() as camera:
             camera.resolution = (1024, 768)
             # camera.framerate = 24
             while shouldStillMonitor:
+                monitoringWorking = True
                 if connection is None:
                     client_socket, connection = tryToEstablishStreamConnection()
                 # Start recording, sending the output to the connection for 60
