@@ -12,7 +12,7 @@ import LedChanger
 import NgrokAddressesManager
 from DataManager import current_ms_time
 
-deviceName = "RPI Zero + Camera"
+deviceName = "RPI_Zero_and_Camera"
 
 photoButtonPin = 17  # Move to common place with LEDS pins
 
