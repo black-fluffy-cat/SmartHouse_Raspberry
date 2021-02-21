@@ -44,7 +44,7 @@ def onAlertPhotoRequest():
     global lastAlertTime
     lastAlertTime = current_ms_time()
     imagePath = CameraManager.makePhoto()
-    DataSender.handleImage(imagePath)
+    DataSender.handleImageAsynchronously(imagePath)
 
 
 @app.route('/led/<color>/', methods=["GET", "POST"])

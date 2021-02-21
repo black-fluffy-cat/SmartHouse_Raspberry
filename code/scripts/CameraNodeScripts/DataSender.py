@@ -39,7 +39,7 @@ def makeNgrokAddressesCall():
             return False
 
 
-def handleImage(imagePath):
+def handleImageAsynchronously(imagePath):
     thread = threading.Thread(target=thread_handle_sending_and_deleting_image, args=(imagePath,))
     thread.start()
 
@@ -58,7 +58,7 @@ def thread_handle_sending_and_deleting_image(imagePath):
         utils.printException(e)
 
 
-def handleVideo(videoPath):
+def handleVideoAsynchronously(videoPath):
     thread = threading.Thread(target=thread_handle_sending_and_deleting_video, args=(videoPath,))
     thread.start()
 

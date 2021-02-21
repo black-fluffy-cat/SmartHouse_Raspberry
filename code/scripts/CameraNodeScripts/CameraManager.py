@@ -2,7 +2,9 @@ import datetime
 import socket
 import picamera
 from picamera import PiCameraError
+import threading
 
+import DataSender
 import LedChanger
 import utils
 
@@ -31,18 +33,30 @@ def makePhoto():
     return imagePath
 
 
+def handleStartRecordingAndStreaming():
+    thread = threading.Thread(target=startRecordingAndStreaming)
+    thread.start()
+
+
 def startRecordingAndStreaming():
     # Connect a client socket to my_server:8000 (change my_server to the
     # hostname of your server)
-    client_socket = socket.socket()
-    from DataManager import defaultServerIP
-    client_socket.connect((defaultServerIP, 8000))
 
+    connection = None
+    client_socket = None
     global shouldStillMonitor
     shouldStillMonitor = True
-    # Make a file-like object out of the connection
-    connection = client_socket.makefile('wb')
     videoPath = None
+
+    try:
+        client_socket = socket.socket()
+        from DataManager import defaultServerIP
+        client_socket.connect((defaultServerIP, 8000))
+        # Make a file-like object out of the connection
+        connection = client_socket.makefile('wb')
+    except Exception as e:
+        utils.printException(e)
+
     LedChanger.lightPhotoLedOn()
     try:
         with picamera.PiCamera() as camera:
@@ -53,13 +67,21 @@ def startRecordingAndStreaming():
                 # seconds, then stop
                 from startServer import deviceName
                 videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
+
                 camera.start_recording(videoPath)
-                camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
+                if connection is not None:
+                    camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
+
                 camera.wait_recording(30)
+
                 camera.stop_recording()
-                camera.stop_recording(splitter_port=2)
+                if connection is not None:
+                    camera.stop_recording(splitter_port=2)
+
+                DataSender.handleVideoAsynchronously(videoPath)
     finally:
         connection.close()
-        client_socket.close()
+        if client_socket is not None:
+            client_socket.close()
         LedChanger.lightPhotoLedOff()
     return videoPath
