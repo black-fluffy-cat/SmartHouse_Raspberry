@@ -1,7 +1,7 @@
 import datetime
 import socket
 import picamera
-from picamera import PiCameraError
+from picamera import PiCameraError, PiCameraAlreadyRecording
 import threading
 
 import DataSender
@@ -93,8 +93,9 @@ def startRecordingAndStreaming():
                         camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
                 except Exception as e:
                     utils.printException(e)
-                    connection = None
-                    client_socket = None
+                    if e is not PiCameraAlreadyRecording:
+                        connection = None
+                        client_socket = None
 
                 camera.wait_recording(30)
                 DataSender.handleVideoAsynchronously(videoPath)
