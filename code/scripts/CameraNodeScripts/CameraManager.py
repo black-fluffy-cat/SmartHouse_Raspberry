@@ -10,6 +10,7 @@ import utils
 
 shouldStillMonitor = True
 monitoringWorking = False
+currentCameraObject = None
 
 
 def onMonitoringStopped():
@@ -20,16 +21,22 @@ def onMonitoringStopped():
 def makePhoto():
     LedChanger.lightPhotoLedOn()
     imagePath = None
-    with picamera.PiCamera() as camera:
-        try:
-            currentTime = datetime.datetime.now()
-            camera.resolution = (2592, 1944)
-            from startServer import deviceName
-            imagePath = 'photo/' + str(deviceName) + "_" + str(currentTime) + '.jpeg'
-            camera.capture(imagePath)
-        except PiCameraError as e:
-            LedChanger.lightErrorLedOn()
-            utils.printException(e)
+
+    global currentCameraObject
+    camera = currentCameraObject
+    if camera is None:
+        camera = picamera.PiCamera()
+        currentCameraObject = camera
+    #with picamera.PiCamera() as camera:
+    try:
+        currentTime = datetime.datetime.now()
+        camera.resolution = (2592, 1944)
+        from startServer import deviceName
+        imagePath = 'photo/' + str(deviceName) + "_" + str(currentTime) + '.jpeg'
+        camera.capture(imagePath)
+    except PiCameraError as e:
+        LedChanger.lightErrorLedOn()
+        utils.printException(e)
     LedChanger.lightPhotoLedOff()
     return imagePath
 
@@ -54,41 +61,47 @@ def startRecordingAndStreaming():
 
     global monitoringWorking
     LedChanger.lightPhotoLedOn()
+
+    global currentCameraObject
+    camera = currentCameraObject
+    if camera is None:
+        camera = picamera.PiCamera()
+        currentCameraObject = camera
     try:
-        with picamera.PiCamera() as camera:
-            camera.resolution = (1024, 768)
-            camera.framerate = 23
-            while shouldStillMonitor:
-                monitoringWorking = True
-                if connection is None:
-                    client_socket, connection = tryToEstablishStreamConnection()
-                # Start recording, sending the output to the connection for 60
-                # seconds, then stop
-                from startServer import deviceName
-                videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
+        #with picamera.PiCamera() as camera:
+        camera.resolution = (1024, 768)
+        #camera.framerate = 23
+        while shouldStillMonitor:
+            monitoringWorking = True
+            if connection is None:
+                client_socket, connection = tryToEstablishStreamConnection()
+            # Start recording, sending the output to the connection for 60
+            # seconds, then stop
+            from startServer import deviceName
+            videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
-                camera.start_recording(videoPath)
+            camera.start_recording(videoPath)
 
-                try:
-                    if connection is not None:
-                        camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
-                except Exception as e:
-                    utils.printException(e)
-                    connection = None
-                    client_socket = None
+            try:
+                if connection is not None:
+                    camera.start_recording(connection, format='h264', splitter_port=2, resize=(640, 480))
+            except Exception as e:
+                utils.printException(e)
+                connection = None
+                client_socket = None
 
-                camera.wait_recording(30)
-                camera.stop_recording()
+            camera.wait_recording(30)
+            camera.stop_recording()
 
-                try:
-                    if connection is not None:
-                        camera.stop_recording(splitter_port=2)
-                except Exception as e:
-                    utils.printException(e)
-                    connection = None
-                    client_socket = None
+            try:
+                if connection is not None:
+                    camera.stop_recording(splitter_port=2)
+            except Exception as e:
+                utils.printException(e)
+                connection = None
+                client_socket = None
 
-                DataSender.handleVideoAsynchronously(videoPath)
+            DataSender.handleVideoAsynchronously(videoPath)
     finally:
         if connection is not None:
             connection.close()
