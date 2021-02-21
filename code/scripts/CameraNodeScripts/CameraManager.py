@@ -8,13 +8,13 @@ import DataSender
 import LedChanger
 import utils
 
-shouldStillMonitor = True
-monitoringWorking = False
+__shouldStillMonitor = True
+__monitoringWorking = False
 
 
 def onMonitoringStopped():
-    global shouldStillMonitor
-    shouldStillMonitor = False
+    global __shouldStillMonitor
+    __shouldStillMonitor = False
 
 
 def makePhoto():
@@ -36,11 +36,11 @@ def makePhoto():
 
 
 def startRecordingAndStreamingAsynchronously():
-    thread = threading.Thread(target=startRecordingAndStreaming)
+    thread = threading.Thread(target=__startRecordingAndStreaming)
     thread.start()
 
 
-def startRecordingAndStreaming():
+def __startRecordingAndStreaming():
     # Connect a client socket to my_server:8000 (change my_server to the
     # hostname of your server)
 
@@ -49,11 +49,11 @@ def startRecordingAndStreaming():
 
     connection = None
     client_socket = None
-    global shouldStillMonitor
-    shouldStillMonitor = True
+    global __shouldStillMonitor
+    __shouldStillMonitor = True
     videoPath = None
 
-    global monitoringWorking
+    global __monitoringWorking
     LedChanger.lightPhotoLedOn()
 
     try:
@@ -61,13 +61,13 @@ def startRecordingAndStreaming():
             camera.resolution = (1024, 768)
             # camera.framerate = 23
 
-            monitoringWorking = True
+            __monitoringWorking = True
             from startServer import deviceName
             videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
             camera.start_recording(videoPath)
 
             if connection is None:
-                client_socket, connection = tryToEstablishStreamConnection()
+                client_socket, connection = __tryToEstablishStreamConnection()
 
             try:
                 if connection is not None:
@@ -79,14 +79,14 @@ def startRecordingAndStreaming():
 
             camera.wait_recording(30)
 
-            while shouldStillMonitor:
-                monitoringWorking = True
+            while __shouldStillMonitor:
+                __monitoringWorking = True
 
                 videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
                 camera.split_recording(videoPath)
                 if connection is None:
-                    client_socket, connection = tryToEstablishStreamConnection()
+                    client_socket, connection = __tryToEstablishStreamConnection()
 
                 try:
                     if connection is not None:
@@ -107,10 +107,10 @@ def startRecordingAndStreaming():
         if client_socket is not None:
             client_socket.close()
         LedChanger.lightPhotoLedOff()
-        monitoringWorking = False
+        __monitoringWorking = False
 
 
-def tryToEstablishStreamConnection():
+def __tryToEstablishStreamConnection():
     try:
         client_socket = socket.socket()
         from DataManager import defaultServerIP
@@ -126,5 +126,5 @@ def tryToEstablishStreamConnection():
 
 
 def isMonitoringWorking():
-    global monitoringWorking
-    return monitoringWorking
+    global __monitoringWorking
+    return __monitoringWorking
