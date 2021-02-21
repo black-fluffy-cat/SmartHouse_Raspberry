@@ -56,6 +56,7 @@ def __startRecordingAndStreaming():
     global __monitoringWorking
     LedChanger.lightPhotoLedOn()
 
+    # TODO loop at the top, and try-catch insidle while loop
     try:
         with picamera.PiCamera() as camera:
             camera.resolution = (1024, 768)
@@ -85,6 +86,8 @@ def __startRecordingAndStreaming():
                 videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
                 camera.split_recording(videoPath)
+
+                # TODO Make it asynchronous
                 if connection is None:
                     client_socket, connection = __tryToEstablishStreamConnection()
 
