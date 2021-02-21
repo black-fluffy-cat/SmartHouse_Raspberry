@@ -56,6 +56,7 @@ def startRecordingAndStreaming():
         connection = client_socket.makefile('wb')
     except Exception as e:
         utils.printException(e)
+        print("Continuing without connection to stream")
 
     LedChanger.lightPhotoLedOn()
     try:
