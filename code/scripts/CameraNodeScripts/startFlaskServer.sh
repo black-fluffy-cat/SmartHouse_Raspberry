@@ -1,3 +1,3 @@
 #!/bin/sh
 
-/home/pi/Desktop/smarthouse_projects/code/scripts/startFlaskApp.sh /home/pi/Desktop/smarthouse_projects/code/scripts/startServer.py
+/home/pi/Desktop/smarthouse_projects/RaspberryCodes/code/scripts/CameraNodeScripts/startFlaskApp.sh /home/pi/Desktop/smarthouse_projects/RaspberryCodes/code/scripts/CameraNodeScripts/startServer.py
