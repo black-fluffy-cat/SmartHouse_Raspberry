@@ -57,7 +57,8 @@ def startRecordingAndStreaming():
             camera.resolution = (1024, 768)
             camera.framerate = 24
             while shouldStillMonitor:
-                client_socket, connection = tryToEstablishStreamConnection()
+                if connection is None:
+                    client_socket, connection = tryToEstablishStreamConnection()
                 # Start recording, sending the output to the connection for 60
                 # seconds, then stop
                 from startServer import deviceName
