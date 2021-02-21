@@ -35,8 +35,8 @@ def startRecordingAndStreaming():
     # Connect a client socket to my_server:8000 (change my_server to the
     # hostname of your server)
     client_socket = socket.socket()
-    from DataManager import serverUrl
-    client_socket.connect((serverUrl, 8000))
+    from DataManager import defaultServerIP
+    client_socket.connect((defaultServerIP, 8000))
 
     global shouldStillMonitor
     shouldStillMonitor = True

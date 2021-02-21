@@ -7,7 +7,8 @@ import utils
 current_ms_time = lambda: int(round(time.time() * 1000))
 
 lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
-defaultServerAddress = "http://192.168.43.157:8080"
+defaultServerIP = "192.168.43.157"
+defaultServerAddress = "http://" + str(defaultServerIP) + ":8080"
 serverUrl = defaultServerAddress
 
 
