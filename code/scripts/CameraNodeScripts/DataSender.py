@@ -56,3 +56,22 @@ def thread_handle_sending_and_deleting_image(imagePath):
                     DataManager.deleteFile(imagePath)
     except Exception as e:
         utils.printException(e)
+
+
+def handleVideo(videoPath):
+    thread = threading.Thread(target=thread_handle_sending_and_deleting_video, args=(videoPath,))
+    thread.start()
+
+
+def thread_handle_sending_and_deleting_video(videoPath):
+    try:
+        with open(videoPath, 'rb') as img:
+            videoBasename = os.path.basename(videoPath)
+            files = {'video': (videoBasename, img, 'multipart/form-data')}
+            with pyrequests.Session() as s:
+                r = s.post(DataManager.getPhotoReceiveEndpoint(), files=files)
+                print(r.status_code)
+                if r.status_code == 200:
+                    DataManager.deleteFile(videoPath)
+    except Exception as e:
+        utils.printException(e)

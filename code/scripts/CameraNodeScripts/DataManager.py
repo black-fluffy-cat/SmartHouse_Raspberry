@@ -7,7 +7,7 @@ import utils
 current_ms_time = lambda: int(round(time.time() * 1000))
 
 lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
-defaultServerAddress = "http://192.168.0.107:8080"
+defaultServerAddress = "http://192.168.43.157:8080"
 serverUrl = defaultServerAddress
 
 
@@ -25,6 +25,10 @@ def getPhotoReceiveEndpoint():
 
 def getNgrokAddressesEndpoint():
     return str(serverUrl) + "/receiveNgrokAddresses"
+
+
+def getVideoReceiveEndpoint():
+    return str(serverUrl) + "/receiveVideo"
 
 
 def getHeartbeatJson():

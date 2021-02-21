@@ -50,7 +50,7 @@ def onAlertPhotoRequest():
 @app.route('/led/<color>/', methods=["GET", "POST"])
 def api_leds_control(color):
     if request.method == "POST":
-        from scripts.LedChanger import LEDS
+        from LedChanger import LEDS
         if color in LEDS:
             GPIO.output(LEDS[color], int(request.data.get("state")))
     return {color: GPIO.input(LEDS[color])}
@@ -61,6 +61,28 @@ def setServerUrl():
     if request.method == "POST":
         # if field is none or exception occurred then do not set it
         DataManager.onServerAddressReceived(request.data.get("serverUrl"))
+        return {"result": "OK"}
+    return {"result": "FAIL"}
+
+
+@app.route('/startMonitoring', methods=["POST"])
+def startMonitoring():
+    if request.method == "POST":
+        # if field is none or exception occurred then do not set it
+        onStartMonitoringRequest()
+        return {"result": "OK"}
+    return {"result": "FAIL"}
+
+
+def onStartMonitoringRequest():
+    videoPath = CameraManager.startRecordingAndStreaming()
+
+
+@app.route('/stopMonitoring', methods=["POST"])
+def stopMonitoring():
+    if request.method == "POST":
+        # if field is none or exception occurred then do not set it
+        CameraManager.onMonitoringStopped()
         return {"result": "OK"}
     return {"result": "FAIL"}
 
