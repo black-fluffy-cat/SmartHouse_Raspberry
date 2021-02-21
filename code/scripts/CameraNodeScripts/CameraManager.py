@@ -57,7 +57,7 @@ def startRecordingAndStreaming():
     try:
         with picamera.PiCamera() as camera:
             camera.resolution = (1024, 768)
-            # camera.framerate = 24
+            camera.framerate = 23
             while shouldStillMonitor:
                 monitoringWorking = True
                 if connection is None:
