@@ -61,12 +61,15 @@ class MonitoringPeriodicTask:
             return None
 
     def __tryToStreamMonitoring(self):
+        should_retry_stream = False
+
         if self.__stream_connection is None or not utils.isSocketAlive(self.__stream_socket):
             if not utils.isSocketAlive(self.__stream_socket):
                 self.__stopCameraMonitoringStreaming()
             self.__stream_connection, self.__stream_socket = self.__tryToEstablishStreamConnection()
+            should_retry_stream = True
 
-        if self.__stream_connection is not None:
+        if self.__stream_connection is not None and should_retry_stream:
             self.__startCameraMonitoringStreaming()
 
     def __tryToEstablishStreamConnection(self):
