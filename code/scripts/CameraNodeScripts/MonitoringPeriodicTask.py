@@ -15,6 +15,7 @@ class MonitoringPeriodicTask:
         self.__periodic_task_should_Run = True
 
         self.__camera = None
+        self.__previous_monitoring_video_path = None
 
         self.__stream_connection = None
         self.__stream_socket = None
@@ -22,11 +23,12 @@ class MonitoringPeriodicTask:
     def cancelMonitoringPeriodicTask(self):
         self.__periodic_task_should_Run = False
 
-    def launchMonitoringPeriodicTask(self, camera):
+    def launchMonitoringPeriodicTask(self, camera, videoPath):
         if camera is None:
             return
         self.__camera = camera
 
+        self.__previous_monitoring_video_path = videoPath
         self.__periodic_task_should_Run = True
 
         if self.__task_launched:
@@ -58,7 +60,9 @@ class MonitoringPeriodicTask:
             _video_path = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
             self.__camera.split_recording(_video_path)
-            return _video_path
+            path_to_return = self.__previous_monitoring_video_path
+            self.__previous_monitoring_video_path = _video_path
+            return path_to_return
         except Exception as e:
             utils.printException(e)
             return None

@@ -82,7 +82,7 @@ def __startRecordingAndStreaming():
             from startServer import deviceName
             videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
             camera.start_recording(videoPath, resize=(1024, 768))
-            __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera)
+            __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera, videoPath)
     except Exception as e:
         utils.printException(e)
         onMonitoringStopped()
