@@ -38,13 +38,16 @@ class MonitoringPeriodicTask:
 
     def __monitoringPeriodicTask(self):
         while self.__periodic_task_should_Run:
-            _videoPath = self.__splitCurrentRecording()
-            DataSender.handleVideoAsynchronously(_videoPath)
-            start_to_stream_start_time = time.time()
-            self.__tryToStreamMonitoring()
-            start_to_stream_execution_time = time.time() - start_to_stream_start_time
-            if start_to_stream_execution_time < 30:
-                time.sleep(30 - start_to_stream_execution_time)
+            try:
+                _videoPath = self.__splitCurrentRecording()
+                DataSender.handleVideoAsynchronously(_videoPath)
+                start_to_stream_start_time = time.time()
+                self.__tryToStreamMonitoring()
+                start_to_stream_execution_time = time.time() - start_to_stream_start_time
+                if start_to_stream_execution_time < 30:
+                    time.sleep(30 - start_to_stream_execution_time)
+            except Exception as e:
+                utils.printException(e)
         self.__onDestroyTask()
         self.__task_launched = False
         print("MonitoringPeriodicTask has just quit")
