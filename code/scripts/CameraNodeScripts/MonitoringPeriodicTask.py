@@ -3,128 +3,106 @@ import time
 import datetime
 import socket
 
-import picamera
-
 import DataSender
 import utils
 
-__taskLaunched = False
-__periodicThread = None
 
-__periodicTaskShouldRun = True
+class MonitoringPeriodicTask:
+    def __init__(self):
+        self.__task_launched = False
+        self.__periodic_thread = None
 
-__camera = picamera.PiCamera
+        self.__periodic_task_should_Run = True
 
-__stream_connection = None
-__stream_socket = None
+        self.__camera = None
 
+        self.__stream_connection = None
+        self.__stream_socket = None
 
-def cancelMonitoringPeriodicTask():
-    global __periodicTaskShouldRun
-    __periodicTaskShouldRun = False
+    def cancelMonitoringPeriodicTask(self):
+        self.__periodic_task_should_Run = False
 
+    def launchMonitoringPeriodicTask(self, camera):
+        if camera is None:
+            return
+        self.__camera = camera
 
-def launchMonitoringPeriodicTask(camera):
-    global __camera
-    if camera is None:
-        return
-    __camera = camera
+        self.__periodic_task_should_Run = True
 
-    global __periodicTaskShouldRun
-    __periodicTaskShouldRun = True
+        if self.__task_launched:
+            return
+        self.__task_launched = True
 
-    global __taskLaunched
-    if __taskLaunched:
-        return
-    __taskLaunched = True
+        self.__periodic_thread = threading.Thread(target=self.__monitoringPeriodicTask())
+        self.__periodic_thread.start()
 
-    global __periodicThread
-    __periodicThread = threading.Thread(target=__monitoringPeriodicTask)
-    __periodicThread.start()
+    def __monitoringPeriodicTask(self):
+        while self.__periodic_task_should_Run:
+            _videoPath = self.__splitCurrentRecording()
+            DataSender.handleVideoAsynchronously(_videoPath)
+            start_to_stream_start_time = time.time()
+            self.__tryToStreamMonitoring()
+            start_to_stream_execution_time = time.time() - start_to_stream_start_time
+            if start_to_stream_execution_time < 30:
+                time.sleep(30 - start_to_stream_execution_time)
+        self.__onDestroyTask()
+        self.__task_launched = False
+        print("MonitoringPeriodicTask has just quit")
 
-
-def __monitoringPeriodicTask():
-    while __periodicTaskShouldRun:
-        _videoPath = __splitCurrentRecording()
-        DataSender.handleVideoAsynchronously(_videoPath)
-        startToStreamStartTime = time.time()
-        __tryToStreamMonitoring()
-        startToStreamExecutionTime = time.time() - startToStreamStartTime
-        if startToStreamExecutionTime < 30:
-            time.sleep(30 - startToStreamExecutionTime)
-    __onDestroyTask()
-    global __taskLaunched
-    __taskLaunched = False
-    print("MonitoringPeriodicTask has just quit")
-
-
-def __splitCurrentRecording():
-    try:
-        from startServer import deviceName
-        _videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
-
-        __camera.split_recording(_videoPath)
-        return _videoPath
-    except Exception as e:
-        utils.printException(e)
-        return None
-
-
-def __tryToStreamMonitoring():
-    global __stream_connection
-    global __stream_socket
-
-    if __stream_connection is None or not utils.isSocketAlive(__stream_socket):
-        if not utils.isSocketAlive(__stream_socket):
-            __stopCameraMonitoringStreaming()
-        __stream_connection, __stream_socket = __tryToEstablishStreamConnection()
-
-    if __stream_connection is not None:
-        __startCameraMonitoringStreaming()
-
-
-def __tryToEstablishStreamConnection():
-    try:
-        client_socket = socket.socket()
-        client_socket.settimeout(20)
-        from DataManager import defaultServerIP
-        client_socket.connect((defaultServerIP, 8000))
-        # Make a file-like object out of the connection
-        connection = client_socket.makefile('wb')
-        print("Connection to stream established")
-        return connection, client_socket
-    except Exception as e:
-        utils.printException(e)
-        print("Continuing without connection to stream")
-        return None, None
-
-
-def __startCameraMonitoringStreaming():
-    global __stream_connection
-    global __camera
-    try:
-        __camera.start_recording(__stream_connection, format='h264', splitter_port=2, resize=(640, 480))
-    except Exception as e:
-        utils.printException(e)
-        __onDestroyTask()
-
-
-def __stopCameraMonitoringStreaming():
-    try:
-        global __camera
-        __camera.stop_recording(splitter_port=2)
-    except Exception as e:
-        utils.printException(e)
-
-
-def __onDestroyTask():
-    global __stream_connection
-    global __stream_socket
-    if __stream_socket is not None:
+    def __splitCurrentRecording(self):
         try:
-            __stopCameraMonitoringStreaming()
-            __stream_socket.close()
-            __stream_connection = None
-            __stream_socket = None
+            from startServer import deviceName
+            _video_path = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
+
+            self.__camera.split_recording(_video_path)
+            return _video_path
         except Exception as e:
             utils.printException(e)
+            return None
+
+    def __tryToStreamMonitoring(self):
+        if self.__stream_connection is None or not utils.isSocketAlive(self.__stream_socket):
+            if not utils.isSocketAlive(self.__stream_socket):
+                self.__stopCameraMonitoringStreaming()
+            self.__stream_connection, self.__stream_socket = self.__tryToEstablishStreamConnection()
+
+        if self.__stream_connection is not None:
+            self.__startCameraMonitoringStreaming()
+
+    def __tryToEstablishStreamConnection(self):
+        try:
+            client_socket = socket.socket()
+            client_socket.settimeout(20)
+            from DataManager import defaultServerIP
+            client_socket.connect((defaultServerIP, 8000))
+            # Make a file-like object out of the connection
+            connection = client_socket.makefile('wb')
+            print("Connection to stream established")
+            return connection, client_socket
+        except Exception as e:
+            utils.printException(e)
+            print("Continuing without connection to stream")
+            return None, None
+
+    def __startCameraMonitoringStreaming(self):
+        try:
+            self.__camera.start_recording(self.__stream_connection, format='h264', splitter_port=2, resize=(640, 480))
+        except Exception as e:
+            utils.printException(e)
+            self.__onDestroyTask()
+
+    def __stopCameraMonitoringStreaming(self):
+        try:
+            self.__camera.stop_recording(splitter_port=2)
+        except Exception as e:
+            utils.printException(e)
+
+    def __onDestroyTask(self):
+        if self.__stream_socket is not None:
+            try:
+                self.__stopCameraMonitoringStreaming()
+                self.__stream_socket.close()
+                self.__stream_connection = None
+                self.__stream_socket = None
+            except Exception as e:
+                utils.printException(e)

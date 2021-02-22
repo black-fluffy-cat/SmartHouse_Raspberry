@@ -5,14 +5,17 @@ import threading
 
 import LedChanger
 import utils
-from MonitoringPeriodicTask import launchMonitoringPeriodicTask, cancelMonitoringPeriodicTask
+from MonitoringPeriodicTask import MonitoringPeriodicTask
 
 __monitoringWorking = False
 __camera = None
+__currentMonitoringPeriodicTask = None
 
 
 def onMonitoringStopped():
-    cancelMonitoringPeriodicTask()
+    global __currentMonitoringPeriodicTask
+    if __currentMonitoringPeriodicTask is not None:
+        __currentMonitoringPeriodicTask.cancelMonitoringPeriodicTask()
     stopCameraRecording()
     LedChanger.lightPhotoLedOff()
     global __monitoringWorking
@@ -36,10 +39,10 @@ def makePhoto():
     if __camera is None:
         __camera = picamera.PiCamera()
     try:
-        currentTime = datetime.datetime.now()
+        current_time = datetime.datetime.now()
         __camera.resolution = (2592, 1944)
         from startServer import deviceName
-        _imagePath = 'photo/' + str(deviceName) + "_" + str(currentTime) + '.jpeg'
+        _imagePath = 'photo/' + str(deviceName) + "_" + str(current_time) + '.jpeg'
         __camera.capture(_imagePath, use_video_port=True)
     except PiCameraError as e:
         LedChanger.lightErrorLedOn()
@@ -49,6 +52,12 @@ def makePhoto():
 
 
 def startRecordingAndStreamingAsynchronously():
+    global __currentMonitoringPeriodicTask
+    if __currentMonitoringPeriodicTask is not None:
+        __currentMonitoringPeriodicTask.cancelMonitoringPeriodicTask()
+        __currentMonitoringPeriodicTask = None
+
+    __currentMonitoringPeriodicTask = MonitoringPeriodicTask()
     thread = threading.Thread(target=__startRecordingAndStreaming)
     thread.start()
 
@@ -74,7 +83,7 @@ def __startRecordingAndStreaming():
             from startServer import deviceName
             videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
             camera.start_recording(videoPath)
-            launchMonitoringPeriodicTask(camera)
+            __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera)
     except Exception as e:
         utils.printException(e)
         onMonitoringStopped()
