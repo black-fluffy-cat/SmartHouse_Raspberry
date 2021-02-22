@@ -40,7 +40,6 @@ def makePhoto():
         __camera = picamera.PiCamera()
     try:
         current_time = datetime.datetime.now()
-        __camera.resolution = (2592, 1944)
         from startServer import deviceName
         _imagePath = 'photo/' + str(deviceName) + "_" + str(current_time) + '.jpeg'
         __camera.capture(_imagePath, use_video_port=True)
@@ -77,12 +76,12 @@ def __startRecordingAndStreaming():
         with picamera.PiCamera() as camera:
             global __camera
             __camera = camera
-            camera.resolution = (1024, 768)
+            camera.resolution = (1640, 1232)
             # camera.framerate = 23
 
             from startServer import deviceName
             videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
-            camera.start_recording(videoPath)
+            camera.start_recording(videoPath, resize=(1024, 768))
             __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera)
     except Exception as e:
         utils.printException(e)
