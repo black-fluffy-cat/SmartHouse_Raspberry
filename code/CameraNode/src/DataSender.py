@@ -57,6 +57,8 @@ def thread_handle_sending_and_deleting_image(imagePath):
     except Exception as e:
         utils.printException(e)
 
+    DataManager.makeStorageCheck()
+
 
 def handleVideoAsynchronously(videoPath):
     thread = threading.Thread(target=thread_handle_sending_and_deleting_video, args=(videoPath,))
@@ -75,3 +77,5 @@ def thread_handle_sending_and_deleting_video(videoPath):
                     DataManager.deleteFile(videoPath)
     except Exception as e:
         utils.printException(e)
+
+    DataManager.makeStorageCheck()

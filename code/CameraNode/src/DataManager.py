@@ -3,6 +3,7 @@ import os
 import time
 
 import utils
+import psutil
 
 current_ms_time = lambda: int(round(time.time() * 1000))
 lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
@@ -14,6 +15,9 @@ serverUrl = ""
 
 videoDir="vid/"
 photoDir="photo/"
+
+diskUsagePercentageThreshold = 95
+defaultNumberOfVideosToRemove = 10
 
 def createServerUrl():
     return "http://" + str(serverIP) + ":" + str(serverPort)
@@ -112,3 +116,22 @@ def getNgrokAddressesAsJson():
 
     objectToSend = {'senderId': str(deviceName), 'tunnelsList': listOfTunnels}
     return json.dumps(objectToSend)
+
+def removeOldestVideos(numberOfVideos):
+    list_of_files = os.listdir(str(videoDir))
+    full_path = [str(videoDir) + "{0}".format(x) for x in list_of_files]
+
+    for _ in range(0, numberOfVideos):
+        try:
+            oldest_file = min(full_path, key=os.path.getctime)
+            os.remove(oldest_file)
+            full_path.remove(oldest_file)
+        except Exception as e:
+            utils.printException(e)
+
+
+def makeStorageCheck():
+    usedDiskPercentage = psutil.disk_usage('/').percent
+    if usedDiskPercentage > diskUsagePercentageThreshold:
+        removeOldestVideos(defaultNumberOfVideosToRemove)
+    # TODO Send info to server about amount of disk space
