@@ -95,6 +95,7 @@ startTime = current_ms_time()
 DataManager.loadDataFromConfig()
 DataManager.refreshServerAddressFromFile()
 HeartbeatManager.initHeartbeatThread()
+CameraManager.startRecordingAndStreamingAsynchronously()
 # NgrokAddressesManager.sendAddressesToServerUntilSuccess()
 
 GPIO.add_event_detect(photoButtonPin, GPIO.BOTH, callback=photoButtonEvent)
