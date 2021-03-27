@@ -6,6 +6,8 @@ import utils
 
 current_ms_time = lambda: int(round(time.time() * 1000))
 
+deviceName = "RPI_Zero_and_Camera"
+
 lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
 defaultServerIP = "192.168.1.10"
 defaultServerAddress = "http://" + str(defaultServerIP) + ":8080"
@@ -35,7 +37,6 @@ def getVideoReceiveEndpoint():
 def getHeartbeatJson():
     from startServer import startTime
     from startServer import lastAlertTime
-    from startServer import deviceName
     currentTime = current_ms_time()
     timeFromStart = currentTime - startTime
     timeFromAlert = currentTime - lastAlertTime
@@ -97,6 +98,5 @@ def getNgrokAddressesAsJson():
         tunnelJson = {'name': tunnel['name'], 'publicUrl': tunnel['public_url'], 'addr': tunnel['config']['addr']}
         listOfTunnels.append(tunnelJson)
 
-    from startServer import deviceName
     objectToSend = {'senderId': str(deviceName), 'tunnelsList': listOfTunnels}
     return json.dumps(objectToSend)

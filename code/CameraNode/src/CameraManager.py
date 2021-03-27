@@ -1,7 +1,8 @@
 import datetime
+import threading
+
 import picamera
 from picamera import PiCameraError
-import threading
 
 import LedChanger
 import utils
@@ -40,7 +41,7 @@ def makePhoto():
         __camera = picamera.PiCamera()
     try:
         current_time = datetime.datetime.now()
-        from startServer import deviceName
+        from DataManager import deviceName
         _imagePath = 'photo/' + str(deviceName) + "_" + str(current_time) + '.jpeg'
         __camera.capture(_imagePath, use_video_port=True)
     except PiCameraError as e:
@@ -79,7 +80,7 @@ def __startRecordingAndStreaming():
             camera.resolution = (1640, 1232)
             # camera.framerate = 23
 
-            from startServer import deviceName
+            from DataManager import deviceName
             videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
             camera.start_recording(videoPath, resize=(1024, 768))
             __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera, videoPath)
