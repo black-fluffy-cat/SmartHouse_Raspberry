@@ -1,16 +1,15 @@
-import threading
-import time
 import datetime
-import socket
-
 import io
 import logging
 import socketserver
-from threading import Condition
+import threading
+import time
 from http import server
+from threading import Condition
 
 import DataSender
 import utils
+
 
 class StreamingOutput(object):
     def __init__(self):
@@ -29,33 +28,32 @@ class StreamingOutput(object):
             self.buffer.seek(0)
         return self.buffer.write(buf)
 
+
 output = StreamingOutput()
+
 
 class MonitoringPeriodicTask:
     def __init__(self):
         self.__task_launched = False
         self.__periodic_thread = None
 
-        self.__periodic_task_should_Run = True
+        self.__periodic_task_should_run = True
 
         self.__camera = None
         self.__previous_monitoring_video_path = None
 
-        self.__stream_connection = None
-        self.__stream_socket = None
-
-        self.__streamingStopped = True
+        self.__streaming_stopped = True
 
     def cancelMonitoringPeriodicTask(self):
-        self.__periodic_task_should_Run = False
+        self.__periodic_task_should_run = False
 
-    def launchMonitoringPeriodicTask(self, camera, videoPath):
+    def launchMonitoringPeriodicTask(self, camera, video_path):
         if camera is None:
             return
         self.__camera = camera
 
-        self.__previous_monitoring_video_path = videoPath
-        self.__periodic_task_should_Run = True
+        self.__previous_monitoring_video_path = video_path
+        self.__periodic_task_should_run = True
 
         if self.__task_launched:
             return
@@ -65,10 +63,10 @@ class MonitoringPeriodicTask:
         self.__periodic_thread.start()
 
     def __monitoringPeriodicTask(self):
-        while self.__periodic_task_should_Run:
+        while self.__periodic_task_should_run:
             try:
-                _videoPath = self.__splitCurrentRecording()
-                DataSender.handleVideoAsynchronously(_videoPath)
+                _video_path = self.__splitCurrentRecording()
+                DataSender.handleVideoAsynchronously(_video_path)
                 start_to_stream_start_time = time.time()
                 self.__tryToStreamMonitoring()
                 start_to_stream_execution_time = time.time() - start_to_stream_start_time
@@ -94,34 +92,9 @@ class MonitoringPeriodicTask:
             return None
 
     def __tryToStreamMonitoring(self):
-        if self.__streamingStopped:
-            self.__streamingStopped = False
+        if self.__streaming_stopped:
+            self.__streaming_stopped = False
             self.__startCameraMonitoringStreaming()
-        # should_retry_stream = False
-        #
-        # if self.__stream_connection is None or utils.is_socket_closed(self.__stream_socket):
-        #     if not utils.isSocketAlive(self.__stream_socket):
-        #         self.__stopCameraMonitoringStreaming()
-        #     self.__stream_connection, self.__stream_socket = self.__tryToEstablishStreamConnection()
-        #     should_retry_stream = True
-        #
-        # if self.__stream_connection is not None and should_retry_stream:
-        #     self.__startCameraMonitoringStreaming()
-
-    def __tryToEstablishStreamConnection(self):
-        try:
-            client_socket = socket.socket()
-            client_socket.settimeout(20)
-            from DataManager import defaultServerIP
-            client_socket.connect((defaultServerIP, 8000))
-            # Make a file-like object out of the connection
-            connection = client_socket.makefile('wb')
-            print("Connection to stream established")
-            return connection, client_socket
-        except Exception as e:
-            utils.printException(e)
-            print("Continuing without connection to stream")
-            return None, None
 
     def __startCameraMonitoringStreaming(self):
         try:
@@ -131,7 +104,7 @@ class MonitoringPeriodicTask:
             stream_server = StreamingServer(address, StreamingHandler)
             stream_server.serve_forever()
         except Exception as e:
-            self.__streamingStopped = True
+            self.__streaming_stopped = True
             utils.printException(e)
             self.__onDestroyTask()
 
@@ -140,23 +113,16 @@ class MonitoringPeriodicTask:
             self.__camera.stop_recording(splitter_port=2)
         except Exception as e:
             utils.printException(e)
-        self.__streamingStopped = True
+        self.__streaming_stopped = True
 
     def __onDestroyTask(self):
-        if self.__stream_socket is not None:
-            try:
-                self.__stopCameraMonitoringStreaming()
-                self.__stream_socket.close()
-                self.__stream_connection = None
-                self.__stream_socket = None
-            except Exception as e:
-                utils.printException(e)
+        try:
+            self.__stopCameraMonitoringStreaming()
+        except Exception as e:
+            utils.printException(e)
 
-# Web streaming example
-# Source code from the official PiCamera package
-# http://picamera.readthedocs.io/en/latest/recipes2.html#web-streaming
 
-PAGE="""\
+PAGE = """\
 <html>
 <head>
 <title>Raspberry Pi - Surveillance Camera</title>
@@ -167,6 +133,7 @@ PAGE="""\
 </body>
 </html>
 """
+
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -207,6 +174,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         else:
             self.send_error(404)
             self.end_headers()
+
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
