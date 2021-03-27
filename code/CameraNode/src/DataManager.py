@@ -12,6 +12,8 @@ serverIP = ""
 serverPort = ""
 serverUrl = ""
 
+videoDir="vid/"
+photoDir="photo/"
 
 def createServerUrl():
     return "http://" + str(serverIP) + ":" + str(serverPort)

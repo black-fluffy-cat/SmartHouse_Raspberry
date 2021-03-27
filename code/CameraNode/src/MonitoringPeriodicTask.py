@@ -80,8 +80,8 @@ class MonitoringPeriodicTask:
 
     def __splitCurrentRecording(self):
         try:
-            from DataManager import deviceName
-            _video_path = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
+            from DataManager import deviceName, videoDir
+            _video_path = str(videoDir) + str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
             self.__camera.split_recording(_video_path)
             path_to_return = self.__previous_monitoring_video_path

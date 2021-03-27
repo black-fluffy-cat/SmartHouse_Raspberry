@@ -41,8 +41,8 @@ def makePhoto():
         __camera = picamera.PiCamera()
     try:
         current_time = datetime.datetime.now()
-        from DataManager import deviceName
-        _imagePath = 'photo/' + str(deviceName) + "_" + str(current_time) + '.jpeg'
+        from DataManager import deviceName, photoDir
+        _imagePath = str(photoDir) + str(deviceName) + "_" + str(current_time) + '.jpeg'
         __camera.capture(_imagePath, use_video_port=True)
     except PiCameraError as e:
         LedChanger.lightErrorLedOn()
@@ -75,8 +75,8 @@ def __startRecordingAndStreaming():
             camera.resolution = (1640, 1232)
             # camera.framerate = 23
 
-            from DataManager import deviceName
-            videoPath = str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
+            from DataManager import deviceName, videoDir
+            videoPath = str(videoDir) + str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
             camera.start_recording(videoPath, resize=(1024, 768))
             __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera, videoPath)
     except Exception as e:
