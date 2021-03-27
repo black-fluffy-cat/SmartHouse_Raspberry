@@ -2,8 +2,9 @@ import json
 import os
 import time
 
-import utils
 import psutil
+
+import utils
 
 current_ms_time = lambda: int(round(time.time() * 1000))
 lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
@@ -135,3 +136,15 @@ def makeStorageCheck():
     if usedDiskPercentage > diskUsagePercentageThreshold:
         removeOldestVideos(defaultNumberOfVideosToRemove)
     # TODO Send info to server about amount of disk space
+
+
+def createPhotoDirIfNotExists():
+    if not os.path.exists(photoDir):
+        os.makedirs(photoDir)
+        os.chmod(photoDir, 0o777)
+
+
+def createVideoDirIfNotExists():
+    if not os.path.exists(videoDir):
+        os.makedirs(videoDir)
+        os.chmod(videoDir, 0o777)
