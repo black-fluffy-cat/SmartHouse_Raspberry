@@ -9,10 +9,10 @@ import DataManager
 import DataSender
 import HeartbeatManager
 import LedChanger
-import NgrokAddressesManager
 from DataManager import current_ms_time
+from LedChanger import LEDS, BUTTONS
 
-photoButtonPin = 17  # Move to common place with LEDS pins
+photoButtonPin = BUTTONS["photo"]
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(photoButtonPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -47,10 +47,8 @@ def onAlertPhotoRequest():
 
 @app.route('/led/<color>/', methods=["GET", "POST"])
 def api_leds_control(color):
-    if request.method == "POST":
-        from LedChanger import LEDS
-        if color in LEDS:
-            GPIO.output(LEDS[color], int(request.data.get("state")))
+    if request.method == "POST" and color in LEDS:
+        GPIO.output(LEDS[color], int(request.data.get("state")))
     return {color: GPIO.input(LEDS[color])}
 
 

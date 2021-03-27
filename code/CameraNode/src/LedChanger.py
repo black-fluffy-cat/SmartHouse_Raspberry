@@ -1,6 +1,7 @@
 from RPi import GPIO
 
 LEDS = {"green": 16, "blue": 19, "errorLed": 12}
+BUTTONS = {"photo": 17}
 
 
 def initLedChanger():
