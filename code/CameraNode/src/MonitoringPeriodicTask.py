@@ -109,7 +109,9 @@ class MonitoringPeriodicTask:
             self.__camera.start_recording(output, format='mjpeg', splitter_port=2, resize=(640, 480))
             address = ('', videoStreamPort)
             stream_server = StreamingServer(address, StreamingHandler)
+            print("Before serve forever")
             stream_server.serve_forever()
+            print("After serve forever")
         except Exception as e:
             self.__streaming_stopped = True
             utils.printException(e)
