@@ -10,7 +10,7 @@ from MonitoringPeriodicTask import MonitoringPeriodicTask
 
 __monitoringWorking = False
 __camera = None
-__currentMonitoringPeriodicTask = None
+__currentMonitoringPeriodicTask = MonitoringPeriodicTask()
 
 
 def onMonitoringStopped():
@@ -52,12 +52,7 @@ def makePhoto():
 
 
 def startRecordingAndStreamingAsynchronously():
-    global __currentMonitoringPeriodicTask
-    if __currentMonitoringPeriodicTask is not None:
-        __currentMonitoringPeriodicTask.cancelMonitoringPeriodicTask()
-        __currentMonitoringPeriodicTask = None
-
-    __currentMonitoringPeriodicTask = MonitoringPeriodicTask()
+    __currentMonitoringPeriodicTask.cancelMonitoringPeriodicTask()
     thread = threading.Thread(target=__startRecordingAndStreaming)
     thread.start()
 
