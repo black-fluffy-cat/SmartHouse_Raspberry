@@ -74,7 +74,7 @@ def thread_handle_sending_and_deleting_video(videoPath):
             with pyrequests.Session() as s:
                 print("DataSender, starting to post video to server: " + str(videoPath))
                 r = s.post(DataManager.getVideoReceiveEndpoint(), files=files)
-                print("DataManager.getVideoReceiveEndpoint(), status code: " + str(r.status_code))
+                print("DataManager.getVideoReceiveEndpoint()" + str(DataManager.getVideoReceiveEndpoint()) + ", status code: " + str(r.status_code))
                 if r.status_code == 200:
                     DataManager.deleteFile(videoPath)
     except Exception as e:
