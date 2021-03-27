@@ -1,0 +1,6 @@
+[main]
+deviceName=RPI_Zero_Camera
+
+[server]
+defaultServerIP=192.168.1.10
+defaultServerPort=8080

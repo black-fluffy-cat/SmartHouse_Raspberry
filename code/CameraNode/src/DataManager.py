@@ -1,17 +1,28 @@
-import time
-import os
 import json
+import os
+import time
 
 import utils
 
 current_ms_time = lambda: int(round(time.time() * 1000))
-
-deviceName = "RPI_Zero_and_Camera"
-
 lastKnownServerAddressFileName = "lastKnownServerAddress.txt"
-defaultServerIP = "192.168.1.10"
-defaultServerAddress = "http://" + str(defaultServerIP) + ":8080"
-serverUrl = defaultServerAddress
+
+deviceName = ""
+serverIP = ""
+serverPort = ""
+serverUrl = ""
+
+
+def createServerUrl():
+    return "http://" + str(serverIP) + ":" + str(serverPort)
+
+
+def loadDataFromConfig():
+    import ConfigLoader
+    global deviceName, serverIP, serverPort, serverUrl
+
+    deviceName, serverIP, serverPort = ConfigLoader.loadConfig()
+    serverUrl = createServerUrl()
 
 
 def getHeartbeatEndpoint():
@@ -57,20 +68,20 @@ def deleteFile(filepath):
         utils.printException(e)
 
 
-def onServerAddressReceived(serverAddress):
+def onServerAddressReceived(newServerUrl):
     global serverUrl
-    serverUrl = serverAddress
-    saveServerAddress(serverAddress)
+    serverUrl = newServerUrl
+    saveServerAddress(newServerUrl)
 
 
 def getServerAddress():
     return serverUrl
 
 
-def saveServerAddress(serverAddress):
+def saveServerAddress(newServerUrl):
     try:
         with open(lastKnownServerAddressFileName, 'w') as file:
-            file.write(serverAddress)
+            file.write(newServerUrl)
     except Exception as e:
         utils.printException(e)
 
@@ -83,7 +94,6 @@ def refreshServerAddressFromFile():
             return
     except Exception as e:
         utils.printException(e)
-    serverUrl = defaultServerAddress
 
 
 def getNgrokAddressesAsJson():

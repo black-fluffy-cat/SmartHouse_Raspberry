@@ -93,6 +93,8 @@ def isMonitoringWorking():
 print('Application starting')
 app.run()
 startTime = current_ms_time()
+
+DataManager.loadDataFromConfig()
 DataManager.refreshServerAddressFromFile()
 HeartbeatManager.initHeartbeatThread()
 # NgrokAddressesManager.sendAddressesToServerUntilSuccess()
