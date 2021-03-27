@@ -47,9 +47,26 @@ class MonitoringPeriodicTask:
 
         self.__streaming_stopped = True
 
+        self.__streaming_thread = threading.Thread(target=self.__thread_startCameraMonitoringStreaming)
+        self.__streaming_thread.start()
+
     def cancelMonitoringPeriodicTask(self):
         self.__periodic_task_should_run = False
 
+    def __thread_startCameraMonitoringStreaming(self):
+        try:
+            address = ('', videoStreamPort)
+            stream_server = StreamingServer(address, StreamingHandler)
+            print("Before serve forever")
+            stream_server.serve_forever()
+            print("After serve forever")
+        except Exception as e:
+            self.__streaming_stopped = True
+            utils.printException(e)
+            self.__onDestroyTask()
+
+
+    # suspending!!
     def launchMonitoringPeriodicTask(self, camera, video_path):
         if camera is None:
             return
@@ -62,8 +79,7 @@ class MonitoringPeriodicTask:
             return
         self.__task_launched = True
 
-        self.__periodic_thread = threading.Thread(target=self.__monitoringPeriodicTask())
-        self.__periodic_thread.start()
+        self.__monitoringPeriodicTask()
 
     def __monitoringPeriodicTask(self):
         while self.__periodic_task_should_run:
@@ -102,22 +118,9 @@ class MonitoringPeriodicTask:
         if self.__streaming_stopped:
             self.__streaming_stopped = False
 
-            self.__streaming_thread = threading.Thread(target=self.__thread_startCameraMonitoringStreaming())
-            self.__streaming_thread.start()
-
-    def __thread_startCameraMonitoringStreaming(self):
-        try:
             global output
             self.__camera.start_recording(output, format='mjpeg', splitter_port=2, resize=(640, 480))
-            address = ('', videoStreamPort)
-            stream_server = StreamingServer(address, StreamingHandler)
-            print("Before serve forever")
-            stream_server.serve_forever()
-            print("After serve forever")
-        except Exception as e:
-            self.__streaming_stopped = True
-            utils.printException(e)
-            self.__onDestroyTask()
+
 
     def __stopCameraMonitoringStreaming(self):
         try:
