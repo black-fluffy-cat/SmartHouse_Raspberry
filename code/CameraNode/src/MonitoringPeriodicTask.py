@@ -88,7 +88,9 @@ class MonitoringPeriodicTask:
             DataManager.createVideoDirIfNotExists()
             _video_path = str(videoDir) + str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
 
+            print("c")
             self.__camera.split_recording(_video_path)
+            print("d")
             path_to_return = self.__previous_monitoring_video_path
             self.__previous_monitoring_video_path = _video_path
             return path_to_return
