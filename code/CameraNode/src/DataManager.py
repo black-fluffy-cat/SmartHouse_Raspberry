@@ -13,7 +13,7 @@ serverIP = ""
 serverPort = ""
 serverUrl = ""
 
-videoDir="vid/"
+videoDir="video/"
 photoDir="photo/"
 
 diskUsagePercentageThreshold = 95
