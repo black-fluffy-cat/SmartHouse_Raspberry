@@ -125,6 +125,7 @@ class MonitoringPeriodicTask:
 
     def __startCameraMonitoringStreaming(self):
         try:
+            global output
             self.__camera.start_recording(output, format='mjpeg', splitter_port=2, resize=(640, 480))
             address = ('', 8000)
             stream_server = StreamingServer(address, StreamingHandler)
@@ -189,9 +190,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.end_headers()
             try:
                 while True:
-                    global vidOutput
-                    with vidOutput.condition:
-                        vidOutput.condition.wait()
+                    global output
+                    with output.condition:
+                        output.condition.wait()
                         frame = output.frame
                     self.wfile.write(b'--FRAME\r\n')
                     self.send_header('Content-Type', 'image/jpeg')
