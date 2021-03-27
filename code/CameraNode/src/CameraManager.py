@@ -81,7 +81,9 @@ def __startRecordingAndStreaming():
             from DataManager import deviceName, videoDir
             DataManager.createVideoDirIfNotExists()
             videoPath = str(videoDir) + str(deviceName) + "_" + str(datetime.datetime.now()) + '.h264'
+            print("a")
             camera.start_recording(videoPath, resize=(1024, 768))
+            print("b")
             __currentMonitoringPeriodicTask.launchMonitoringPeriodicTask(camera, videoPath)
     except Exception as e:
         utils.printException(e)
