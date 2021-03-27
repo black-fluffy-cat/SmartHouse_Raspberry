@@ -121,14 +121,14 @@ class MonitoringPeriodicTask:
         except Exception as e:
             utils.printException(e)
 
-
+from DataManager import deviceName
 PAGE = """\
 <html>
 <head>
-<title>Raspberry Pi - Surveillance Camera</title>
+<title>""" + str(deviceName) + """</title>
 </head>
 <body>
-<center><h1>Raspberry Pi - Surveillance Camera</h1></center>
+<center><h1>""" + str(deviceName) + """</h1></center>
 <center><img src="stream.mjpg" width="640" height="480"></center>
 </body>
 </html>
