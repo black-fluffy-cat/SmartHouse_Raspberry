@@ -30,12 +30,15 @@ class StreamingOutput(object):
 
 
 output = StreamingOutput()
+videoLengthSeconds = 30
+videoStreamPort = 8000
 
 
 class MonitoringPeriodicTask:
     def __init__(self):
         self.__task_launched = False
         self.__periodic_thread = None
+        self.__streaming_thread = None
 
         self.__periodic_task_should_run = True
 
@@ -70,8 +73,8 @@ class MonitoringPeriodicTask:
                 start_to_stream_start_time = time.time()
                 self.__tryToStreamMonitoring()
                 start_to_stream_execution_time = time.time() - start_to_stream_start_time
-                if start_to_stream_execution_time < 30:
-                    time.sleep(30 - start_to_stream_execution_time)
+                if start_to_stream_execution_time < videoLengthSeconds:
+                    time.sleep(videoLengthSeconds - start_to_stream_execution_time)
             except Exception as e:
                 utils.printException(e)
         self.__onDestroyTask()
@@ -94,13 +97,15 @@ class MonitoringPeriodicTask:
     def __tryToStreamMonitoring(self):
         if self.__streaming_stopped:
             self.__streaming_stopped = False
-            self.__startCameraMonitoringStreaming()
 
-    def __startCameraMonitoringStreaming(self):
+            self.__streaming_thread = threading.Thread(target=self.__thread_startCameraMonitoringStreaming())
+            self.__streaming_thread.start()
+
+    def __thread_startCameraMonitoringStreaming(self):
         try:
             global output
             self.__camera.start_recording(output, format='mjpeg', splitter_port=2, resize=(640, 480))
-            address = ('', 8000)
+            address = ('', videoStreamPort)
             stream_server = StreamingServer(address, StreamingHandler)
             stream_server.serve_forever()
         except Exception as e:
@@ -121,7 +126,14 @@ class MonitoringPeriodicTask:
         except Exception as e:
             utils.printException(e)
 
+        try:
+            self.__streaming_thread.stop()
+        except Exception as e:
+            utils.printException(e)
+
+
 from DataManager import deviceName
+
 PAGE = """\
 <html>
 <head>
